@@ -1,0 +1,38 @@
+name: Build RainyPDF Windows
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['src/**', 'tests/**', 'build-tools/**', 'installer.iss', 'requirements*.txt', 'pyproject.toml', '.github/workflows/windows.yml']
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Inno Setup
+        run: choco install innosetup --yes --no-progress
+      - name: Build, install and test
+        shell: pwsh
+        run: ./build-tools/build_windows.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RainyPDF-Windows
+          path: |
+            release/*.exe
+            dist/qa-*.png
+            dist/qa-report.json
+            runtimes/runtime-manifest.json
+      - name: Publish tested installer
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "v0.1.0-build.${{ github.run_number }}"
+          gh release create $tag release/RainyPDF-0.1.0-Setup.exe dist/qa-home.png dist/qa-editor.png dist/qa-report.json --target "${{ github.sha }}" --title "RAINY PDF $tag" --notes "Initial Mongolian offline PDF editor. Includes local OCR and Office conversion engines. See QA report and documented limitations. Unsigned Windows installer."
+          if ($LASTEXITCODE -ne 0) { throw 'Release failed' }

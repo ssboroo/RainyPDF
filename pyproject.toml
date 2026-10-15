@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=70"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "rainypdf"
+version = "0.1.0"
+description = "Mongolian offline PDF editor"
+requires-python = ">=3.12"
+[project.scripts]
+rainypdf = "rainypdf.ui.app:main"
+[tool.setuptools.packages.find]
+where = ["src"]
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+[tool.setuptools.package-data]
+rainypdf = ["assets/*"]
