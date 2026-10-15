@@ -8,7 +8,7 @@ def atomic_export(destination,writer,validator,overwrite=False):
  fd,name=tempfile.mkstemp(prefix='.rainypdf-'+(str(os.getpid())+'-' if os.environ.get('RAINYPDF_WORKER') else ''),suffix=destination.suffix,dir=destination.parent);os.close(fd);temp=Path(name)
  try:
   writer(temp);validator(temp)
-  with temp.open('rb') as f:os.fsync(f.fileno())
+  with temp.open('r+b') as f:os.fsync(f.fileno())
   if overwrite:os.replace(temp,destination)
   else:
    # Atomic no-clobber publication on the same filesystem.
