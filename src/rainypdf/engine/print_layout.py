@@ -12,8 +12,8 @@ def build_id_layout(front,back,dimensions_mm=(85.6,54)):
   for i,img in enumerate([front,back]):
    x=(p.rect.width-w)/2;y=70+i*(h+35);p.insert_image(fitz.Rect(x,y,x+w,y+h),stream=image_bytes(img),keep_proportion=True)
   return d.tobytes(deflate=True)
-def build_photo_sheet(image,size_mm=(35,45),crop='fit',rows=3,cols=4):
- w,h=[float(x)*MM for x in size_mm];rows=int(rows);cols=int(cols);gap=4*MM;margin=10*MM
+def build_photo_sheet(image,size_mm=(35,45),crop='fit',rows=3,cols=4,margin_mm=10,gap_mm=4):
+ w,h=[float(x)*MM for x in size_mm];rows=int(rows);cols=int(cols);gap=float(gap_mm)*MM;margin=float(margin_mm)*MM
  if min(w,h,rows,cols)<=0 or cols*w+(cols-1)*gap+2*margin>595.276 or rows*h+(rows-1)*gap+2*margin>841.89:raise ValueError('Сонгосон зураг/тоо A4 хуудсанд багтахгүй.')
  data=image_bytes(image)
  if crop=='fill':

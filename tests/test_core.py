@@ -58,3 +58,24 @@ def test_move_delete_added_object_undo(pdf):
  s.edit_overlay(0,[50,250,400,300]);d=PdfEngine.document(s.snapshot());assert d[0].search_for('Overlay')[0].y0>240
  s.edit_overlay(0,delete=True);d=PdfEngine.document(s.snapshot());assert 'Overlay' not in d[0].get_text()
  s.undo();assert 'Overlay' in PdfEngine.document(s.snapshot())[0].get_text()
+
+def test_vector_redaction_removes_crossing_path(tmp_path):
+ p=tmp_path/'vector.pdf'
+ with fitz.open() as d:
+  page=d.new_page();page.draw_line((20,100),(300,100),color=(1,0,0),width=5);d.save(p)
+ s=DocumentSession.open(p);s.apply(Command('redact',s.page_ids[0],{'rect':[100,85,200,115]}))
+ out=tmp_path/'redacted.pdf';PdfEngine.export(s.snapshot(),out)
+ with fitz.open(out) as d:assert not any(x['color']==(1.,0.,0.) for x in d[0].get_drawings())
+
+def test_ink_creation_and_move(pdf):
+ s=DocumentSession.open(pdf);s.apply(Command('ink',s.page_ids[0],{'rect':[30,100,90,150],'points':[(30,100),(60,150),(90,100)]}))
+ with PdfEngine.document(s.snapshot()) as d:assert len(list(d[0].annots()))==1
+ s.edit_overlay(0,[130,200,190,250])
+ with PdfEngine.document(s.snapshot()) as d:
+  page=d[0];assert list(page.annots())[0].vertices[0][0]==pytest.approx((130,200))
+
+def test_nonzero_media_origin_selection():
+ from rainypdf.engine.coordinates import view_rect_to_page
+ with fitz.open() as d:
+  page=d.new_page(width=500,height=500);page.set_mediabox(fitz.Rect(100,100,400,400));page.insert_text((10,30),'SECRET')
+  rect=view_rect_to_page(page,(0,0,90,50),1);assert 'SECRET' in page.get_textbox(rect)

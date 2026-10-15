@@ -6,6 +6,7 @@ def extract_tables(snapshot,regions=None):
  tables=[]
  with PdfEngine.document(snapshot) as d:
   for i,page in enumerate(d):
+   if regions is not None and i not in regions:continue
    found=page.find_tables(clip=regions.get(i) if regions else None)
    for table in found:
     cells=table.extract()

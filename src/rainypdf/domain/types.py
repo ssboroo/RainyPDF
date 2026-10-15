@@ -18,7 +18,7 @@ class JobRequest:
  snapshot:SessionSnapshot|None
  options:dict
  output:Path
-@dataclass(frozen=True)
+@dataclass
 class JobEvent:
  id:str
  generation:int

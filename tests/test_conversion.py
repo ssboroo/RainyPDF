@@ -25,3 +25,9 @@ def test_id_photo_layout_geometry(tmp_path):
   with fitz.open(stream=data,filetype='pdf') as d:
    assert len(d)==1;assert len(d[0].get_image_rects(d[0].get_images()[0][0]))==count
  with pytest.raises(ValueError):build_photo_sheet(p,(200,200),'fit',3,4)
+
+def test_raster_cancel_does_not_publish_partial(pdf,tmp_path):
+ output=tmp_path/'all-pages'
+ def cancel_after_one(n):raise InterruptedError('cancel')
+ with pytest.raises(InterruptedError):pdf_to_images(DocumentSession.open(pdf).snapshot(),{'dpi':72},output,progress=cancel_after_one)
+ assert not output.exists();assert list(tmp_path.glob('.rainypdf-*'))==[]

@@ -44,6 +44,10 @@ class DocumentSession:
   if delete:commands.pop(index)
   else:
    if not rect:raise ValueError('Шинэ байрлал сонгоно уу.')
+   old=commands[index].payload['rect']
+   if commands[index].kind=='ink':
+    if old[2]<=old[0] or old[3]<=old[1]:raise ValueError('Зургийн хүрээ буруу.')
+    commands[index].payload['points']=[(rect[0]+(x-old[0])*(rect[2]-rect[0])/(old[2]-old[0]),rect[1]+(y-old[1])*(rect[3]-rect[1])/(old[3]-old[1])) for x,y in commands[index].payload['points']]
    commands[index].payload['rect']=list(rect)
   candidate=SessionSnapshot(self.source,self.data,tuple(commands),self.generation+1)
   with PdfEngine.document(candidate):pass

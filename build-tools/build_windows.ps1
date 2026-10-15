@@ -13,6 +13,8 @@ Check 'Tests'
 Remove-Item Env:QT_QPA_PLATFORM
 python -m PyInstaller --noconfirm --clean --onedir --windowed --name RainyPDF --paths src --collect-data rainypdf --collect-all pymupdf --icon src/rainypdf/assets/rainypdf.ico build-tools/entry.py
 Check 'PyInstaller'
+python build-tools/collect_licenses.py dist/RainyPDF/licenses
+Check 'Third-party licenses'
 Copy-Item runtimes dist/RainyPDF/runtimes -Recurse -Force
 Copy-Item LICENSE,THIRD-PARTY-NOTICES.md,README.md dist/RainyPDF/ -Force
 Copy-Item docs/USER-GUIDE-MN.md dist/RainyPDF/ -Force

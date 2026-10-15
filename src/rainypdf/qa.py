@@ -47,6 +47,13 @@ def run(folder):
   printer=QPrinter(QPrinter.PrinterMode.HighResolution);printer.setOutputFormat(QPrinter.OutputFormat.PdfFormat);printer.setOutputFileName(str(folder/'qa-printed.pdf'));printer.setResolution(150);render_printer(window.session.snapshot(),printer)
   with fitz.open(folder/'qa-printed.pdf') as d:assert len(d)==1
   results['qt_print_to_pdf']=True
+  from rainypdf.jobs.manager import JobManager
+  from rainypdf.domain.types import JobRequest
+  import time
+  events=[];manager=JobManager(events.append);jobout=folder/'qa-background.pdf';jobout.unlink(missing_ok=True)
+  manager.submit(JobRequest('packaged-background','pdf',window.session.snapshot(),{},jobout));deadline=time.monotonic()+60
+  while not any(e.state in ('done','error') for e in events) and time.monotonic()<deadline:app.processEvents();time.sleep(.02)
+  manager.close();assert events and events[-1].state=='done',events;assert jobout.exists();results['frozen_background_job']=True
   window.session=None;window.close();app.processEvents();results['gui_home_editor']=True;report['ready']=True
  except Exception:report['error']=traceback.format_exc()
  (folder/'qa-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')

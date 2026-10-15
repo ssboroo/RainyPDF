@@ -20,19 +20,30 @@ def images_to_pdf(paths,options,output):
     if options.get('landscape') and a4:w,h=h,w
     margin=float(options.get('margin',10))*72/25.4
     if margin<0 or margin*2>=min(w,h):raise ValueError('Захын хэмжээ буруу.')
-    page=d.new_page(width=w,height=h);page.insert_image(fitz.Rect(margin,margin,w-margin,h-margin),stream=data,keep_proportion=True)
+    page=d.new_page(width=w,height=h)
+    if options.get('fill'):
+     fill=ImageOps.fit(im,(max(1,round((w-2*margin)*2)),max(1,round((h-2*margin)*2))));buffer=BytesIO();fill.save(buffer,'PNG');data=buffer.getvalue()
+    page.insert_image(fitz.Rect(margin,margin,w-margin,h-margin),stream=data,keep_proportion=True)
    d.save(p,deflate=True)
   finally:d.close()
  return atomic_export(output,write,validate_pdf)
-def pdf_to_images(snapshot,options,folder):
+def pdf_to_images(snapshot,options,folder,progress=None):
+ from tempfile import mkdtemp
+ import os,shutil
  dpi=int(options.get('dpi',150))
  if not 36<=dpi<=600:raise ValueError('DPI 36–600 хооронд байна.')
- folder=Path(folder);folder.mkdir(parents=True,exist_ok=True);outputs=[]
- with PdfEngine.document(snapshot) as d:
-  for i in options.get('pages',range(len(d))):
-   ext=options.get('format','png')
-   if ext not in ('png','jpg'):raise ValueError('PNG эсвэл JPG сонгоно уу.')
-   dest=folder/f'page-{i+1}.{ext}'
-   def write(p):d[i].get_pixmap(dpi=dpi,alpha=False).save(str(p))
-   atomic_export(dest,write,lambda p:Image.open(p).verify());outputs.append(dest)
- return outputs
+ folder=Path(folder)
+ if folder.exists():raise FileExistsError('Зургийг шинэ хавтсанд гаргана. Өөр нэр сонгоно уу.')
+ folder.parent.mkdir(parents=True,exist_ok=True);stage=Path(mkdtemp(prefix=f'.rainypdf-{os.getpid()}-images-',dir=folder.parent));outputs=[]
+ try:
+  with PdfEngine.document(snapshot) as d:
+   indices=list(options.get('pages',range(len(d))))
+   for n,i in enumerate(indices):
+    ext=options.get('format','png')
+    if ext not in ('png','jpg'):raise ValueError('PNG эсвэл JPG сонгоно уу.')
+    name=f'page-{i+1}.{ext}';dest=stage/name;d[i].get_pixmap(dpi=dpi,alpha=False).save(str(dest));Image.open(dest).verify();outputs.append(folder/name)
+    if progress:progress((n+1)/len(indices))
+  os.rename(stage,folder)
+  return outputs
+ finally:
+  if stage.exists():shutil.rmtree(stage)

@@ -22,8 +22,12 @@ def main():
   path=download(url,sha,CACHE/name);manifest.append({'file':name,'url':url,'sha256':sha})
  tess=OUT/'tesseract'
  if not (tess/'tesseract.exe').exists():
-  result=subprocess.run([str(CACHE/'tesseract.exe'),'/S','/D='+str(tess)],timeout=240)
-  if result.returncode or not (tess/'tesseract.exe').exists():raise RuntimeError('Tesseract extraction failed')
+  seven=shutil.which('7z') or r'C:\Program Files\7-Zip\7z.exe'
+  stage=ROOT/'build'/'tesseract-extract';stage.mkdir(parents=True,exist_ok=True)
+  result=subprocess.run([seven,'x','-y','-o'+str(stage),str(CACHE/'tesseract.exe')],capture_output=True,text=True,timeout=240)
+  found=list(stage.rglob('tesseract.exe'))
+  if result.returncode or not found:raise RuntimeError('Tesseract archive extraction failed: '+result.stdout[-500:]+result.stderr[-500:])
+  shutil.copytree(found[0].parent,tess,dirs_exist_ok=True)
  office=OUT/'office'
  if not (office/'program'/'soffice.exe').exists():
   extract=ROOT/'build'/'office-extract';extract.mkdir(parents=True,exist_ok=True)

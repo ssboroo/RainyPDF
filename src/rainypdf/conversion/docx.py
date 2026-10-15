@@ -4,14 +4,17 @@ from docx import Document
 from rainypdf.engine.pdf import PdfEngine
 from rainypdf.engine.output import atomic_export
 
-def pdf_to_docx(snapshot,output,mode='native_layout'):
+def pdf_to_docx(snapshot,output,mode='native_layout',pages=None,ocr_options=None):
  def write(dest):
   with TemporaryDirectory(prefix='rainypdf-docx-') as folder:
-   pdf=Path(folder)/'source.pdf';pdf.write_bytes(PdfEngine.materialize(snapshot))
+   pdf=Path(folder)/'source.pdf'
+   with PdfEngine.document(snapshot) as source:
+    if pages is not None:source.select(pages)
+    source.save(pdf,garbage=4,deflate=True)
    if mode=='ocr_text':
     from rainypdf.conversion.ocr import ocr_document
     import pymupdf as fitz
-    ocr=Path(folder)/'ocr.pdf';ocr_document(pdf,ocr)
+    ocr=Path(folder)/'ocr.pdf';ocr_document(pdf,ocr,**(ocr_options or {}))
     doc=Document()
     with fitz.open(ocr) as d:
      for i,page in enumerate(d):
