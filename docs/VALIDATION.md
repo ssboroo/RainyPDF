@@ -2,7 +2,9 @@
 
 ## Баталгаажуулалт
 
-2026-10-15, Python 3.12, Linux: `python -m pytest -q` — 28 passed, 1 skipped. LibreOffice байхгүй учир Office round-trip тестийг энэ орчинд алгассан. Windows CI нь тусдаа багцалсан LibreOffice, Tesseract хөдөлгүүртэй шалгана. Эцсийн Windows суулгацын төлөвийг release-ийн QA тайлан болон Actions үр дүнгээр баталгаажуулна.
+2026-10-15, Python 3.12, Linux: `python -m pytest -q` — 28 passed, 1 skipped. LibreOffice байхгүй учир Office round-trip тестийг энэ орчинд алгассан. Windows CI нь тусдаа багцалсан LibreOffice, Tesseract хөдөлгүүртэй шалгана. Windows CI build 3: **29 passed**. Багцалсан болон суулгасан EXE-ийн self-test, Inno суулгах/устгах шалгалт амжилттай. [Actions run](https://github.com/ssboroo/RainyPDF/actions/runs/38737515838) · [Release QA тайлан](https://github.com/ssboroo/RainyPDF/releases/download/v0.1.0-build.3/qa-report.json).
+
+Packaged self-test нь Монгол текст засвар/экспорт, жинхэнэ redaction, Монгол OCR, searchable scan, PDF → Word, Word → PDF, Excel → PDF, Qt Print-to-PDF, frozen background process болон GUI home/editor зургийг шалгасан. EXE-ийн shell icon extraction мөн шалгагдсан.
 
 Тестүүд PDF текст, Unicode, overflow, эх файлын хамгаалалт, undo/redo, page operations, image conversion, true redaction (текст ба огтлолцсон vector), ink, координат, Excel literal data, OCR, background job, cancellation cleanup, Office process timeout болон Qt session identity-г хамарна. Энэ нь бүх төрлийн бодит баримтын төгс хөрвүүлэлтийн баталгаа биш.
 

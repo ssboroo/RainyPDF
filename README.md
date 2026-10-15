@@ -2,7 +2,9 @@
 
 Монгол интерфэйстэй, Windows 10/11 x64 дээр интернэтгүй ажиллах PDF засварлагч.
 
-**Төлөв:** эхний хувилбарын хөгжүүлэлт ба Windows багцын баталгаажуулалт. Бэлэн суулгац нь [Releases](https://github.com/ssboroo/RainyPDF/releases)-д Windows шалгалт амжилттай дууссаны дараа гарна.
+**Windows 10/11 x64:** [RainyPDF-0.1.0-Setup.exe татах](https://github.com/ssboroo/RainyPDF/releases/download/v0.1.0-build.3/RainyPDF-0.1.0-Setup.exe) · [Шалгалтын тайлан ба дэлгэцийн зураг](https://github.com/ssboroo/RainyPDF/releases/tag/v0.1.0-build.3)
+
+Эхний хувилбар. OCR болон Office хөдөлгүүр суулгацад багтсан; Python, Microsoft Office тусдаа суулгахгүй. [Баталгаажуулалт ба хязгаар](docs/VALIDATION.md).
 
 ## Боломжууд
 - PDF нээх, хуудас урьдчилан харах, zoom, текст хайх/хуулах.
